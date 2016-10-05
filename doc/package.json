@@ -11,13 +11,18 @@
   "license": "ISC",
   "dependencies": {
     "apicache": "^0.2.2",
+    "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.15.2",
+    "connect-ensure-login": "^0.1.1",
+    "connect-flash": "^0.1.1",
     "cookie-parser": "^1.4.3",
     "express": "^4.14.0",
     "express-session": "^1.14.1",
     "fs": "0.0.1-security",
     "mailgun-js": "^0.7.12",
     "mysql": "^2.11.1",
+    "passport": "^0.3.2",
+    "passport-local": "^1.0.0",
     "path": "^0.12.7",
     "sequelize": "^3.24.3"
   }

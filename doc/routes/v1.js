@@ -143,7 +143,10 @@ module.exports = function (app) {
         models.users
             .findOrCreate({where: {email: userValue.email}, defaults:
             {email: userValue.email,
-                groupid: userValue.groupid}})
+                groupid: userValue.groupid,
+            name: userValue.name,
+            phone: userValue.phone,
+                encrypted_password: userValue.encrypted_password}})
             .spread(function(user, created) {
                 console.log(user.get({
                     plain: true
@@ -161,7 +164,7 @@ module.exports = function (app) {
             //Subject and text data
             subject: 'Hello from Note7',
             //html: 'Hello, This is not a plain-text email, I wanted to test some spicy Mailgun sauce in NodeJS! <a href="http://0.0.0.0:3030/validate?' + email + '">Click here to add your email address to a mailing list</a>'
-            html: 'Hello ' + userValue.email + ', Thank you for adding new user!'
+            html: 'Hello ' + userValue.name + ', Thank you for adding new user!'
         };
         //Invokes the method to send emails given the above data with the helper library
         mailgun.messages().send(data, function (err, body) {
