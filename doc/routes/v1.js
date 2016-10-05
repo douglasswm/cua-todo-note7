@@ -2,21 +2,27 @@ var express = require("express");
 var app = express();
 var models = require("./../models/index");
 
+
+
+var Mailgun = require('mailgun-js');
+//Your api key, from Mailgun’s Control Panel
+var api_key = "key-808b23273762ee898ad8e11e53124d6b";
+//Your domain, from the Mailgun Control Panel
+var domain = "mg.sgcarscrap.com";
+
+//Your sending email address
+var from_who = "support@sgcarscrap.com";
+
 module.exports = function (app) {
     const version = "/v1";
-
-    // ###############
-    // Next steps here
-    // ###############
-
+    
     function returnResults(results, res) {
         console.log(results);
         res.status(200).send(results);
     }
 
-    
-    
     // USER ENDPOINTS
+
     /**
       * Documentation goes here
      @api {get} /api/users Get All users
@@ -25,17 +31,30 @@ module.exports = function (app) {
      @apiName GetAllUser
      @apiGroup User
 
-     @apiDescription Retrieve alll user record.
+     @apiDescription Retrieve all user record.
 
      @apiExample Example usage:
      curl -i -X GET 'http://localhost:3000/v1/api/users'
 
-     @apiSuccess {Number}   id    The Users-ID.
-     @apiSuccess {Date}     remember_created_at   Registration Date.
-     @apiSuccess {String}   name    Fullname of the User.
+     @apiSuccess {Number}   id          The Users-ID.
+     @apiSuccess {Date}     createdAt   Registration Date.
+     @apiSuccess {String}   email    Email Address of User
      @apiSuccess {Number}   sign_in_count Sign in count.
      @apiSuccess {Number}   phone    Users phone.
      @apiSuccess {String}   avatar_image_uid  Avatar-Image.
+
+
+
+
+
+     "name": null,
+     "phone": null,
+     "bio": null,
+     "authentication_token": null,
+
+     "updatedAt": "2016-10-05T05:12:55.000Z",
+     "reset_password_sent_at": null,
+     "groupid": 2
 
      @apiError NoAccessRight Only authenticated Admins can access the data.
      @apiError UserNotFound   The <code>id</code> of the User was not found.
@@ -46,7 +65,7 @@ module.exports = function (app) {
       "error": "NoAccessRight"
     }
       */
-    
+
     //GET LIST OF USER
     app.get(version + "/api/users", function (req, res) {
         models.users.findAll()
@@ -58,7 +77,7 @@ module.exports = function (app) {
             res.status(500).send(err);
         });
     });
-    
+
     //GET SPECIFIC USER
     app.get(version + "/api/users/:id", function (req, res) {
         console.log("version 1");
@@ -113,7 +132,7 @@ module.exports = function (app) {
       "error": "NoAccessRight"
     }
       */
-    
+
     //CREATE NEW USER
     app.post(version + "/api/users", function (req, res) {
         var usersdata = req.body;
@@ -132,6 +151,35 @@ module.exports = function (app) {
                 console.log(created)
                 res.json({ message: 'New user created !' });
             })
+        var mailgun = new Mailgun({apiKey: api_key, domain: domain});
+
+        var data = {
+            //Specify email data
+            from: from_who,
+            //The email to contact
+            to: userValue.email,
+            //Subject and text data
+            subject: 'Hello from Note7',
+            //html: 'Hello, This is not a plain-text email, I wanted to test some spicy Mailgun sauce in NodeJS! <a href="http://0.0.0.0:3030/validate?' + email + '">Click here to add your email address to a mailing list</a>'
+            html: 'Hello ' + userValue.email + ', Thank you for adding new user!'
+        };
+        //Invokes the method to send emails given the above data with the helper library
+        mailgun.messages().send(data, function (err, body) {
+            //If there is an error, render the error page
+            if (err) {
+                //res.render('error', { error : err});
+                console.log("got an error: ", err);
+            }
+            //Else we can greet    and leave
+            else {
+                //Here "submitted.jade" is the view file for this landing page
+                //We pass the variable "email" from the url parameter in an object rendered by Jade
+                //res.render('submitted', { email : req.params.mail });
+                //
+                console.log("Email Sent!!!");
+
+            }
+        })
     });
 
     /**
@@ -163,7 +211,7 @@ module.exports = function (app) {
       "error": "NoAccessRight"
     }
       */
-    
+
     //UPDATE EXISTING USER
     app.put(version + "/api/users/:id", function (req, res) {
         var usersdata = req.body;
